@@ -1774,7 +1774,7 @@ int wildBattle(int level, int levelMod, int pokemon) // battle functino for wild
 					pokemon2--;
 					cout << pokedexname[party[i][0]] << ", return!" << endl;
 					cout << "Go, " << pokedexname[party[pokemon2][0]] << "!" << endl;
-					for (j=0; j<8; j++)
+					for (int j=0; j<8; j++)
 					{
 						temppoke[j] = party[pokemon2][j];
 						party[pokemon2][j] = party[i][j];
@@ -1967,7 +1967,7 @@ int trainerBattle(string job, string name, int templevel, int levelMod, int SLMo
 					pokemon2--;
 					cout << pokedexname[party[i][0]] << ", return!" << endl;
 					cout << "Go, " << pokedexname[party[pokemon2][0]] << "!" << endl;
-					for (j=0; j<8; j++)
+					for (int j=0; j<8; j++)
 					{
 						temppoke[j] = party[pokemon2][j];
 						party[pokemon2][j] = party[i][j];
