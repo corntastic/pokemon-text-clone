@@ -476,7 +476,7 @@ char travel(int& x, int& y) // map menu
 
 void event(int& x, int& y, int flag[10][11]) // scripted events
 {
-	int L=0, i, j, win;
+	int L=0, win;
 	if (flag[x][y] < 1)
 	{
 		switch(x)
@@ -1572,7 +1572,7 @@ void pokebox() // box functions
 
 void partyorg()
 {
-	int i, j, pokemon1, pokemon2;
+	int i, pokemon1, pokemon2;
 	char choice='t';
 	for (i=0; i < 6; i++)
 		if (party[i][0] != 0)
@@ -1679,7 +1679,7 @@ int wildBattle(int level, int levelMod, int pokemon) // battle functino for wild
 {
 	if (levelMod > 0)
 		level += rand()%levelMod;
-	int i=0, j=0, tCurHP= stat("HP", pokemon, level);
+	int i=0, tCurHP= stat("HP", pokemon, level);
 	int choice, winner=0;
 		
 	cout << "\nA wild " << pokedexname[pokemon] << " appeared!" << endl;
@@ -2401,7 +2401,7 @@ int stat(string stat, int pokemon, int level)  // stat calculator
 
 int moves(int pokemon, int& level) // loads moves on lvlup
 {
-	int moveID,i;
+	int moveID;
 	
 	while (moveset[pokemon][level]== 0  && level >= 0)
 	{
