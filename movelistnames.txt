@@ -1,0 +1,166 @@
+NULL
+Absorb
+Acid
+Acid Armor
+Agility
+Amnesia
+Aurora Beam
+Barrage
+Barrier
+Bide
+Bind
+Bite
+Blizzard
+Body Slam
+Bone Club
+Bonemerang
+Bubble
+Bubblebeam
+Clamp
+Comet Punch
+Confuse Ray
+Confusion
+Constrict
+Conversion
+Counter
+Crabhammer
+Cut
+Defense Curl
+Dig
+Disable
+Dizzy Punch
+Double Kick
+Double Team
+Double-edge
+Doubleslap
+Dragon Rage
+Dream Eater
+Drill Peck
+Earthquake
+Egg Bomb
+Ember
+Explosion
+Fire Blast
+Fire Punch
+Fire Spin
+Fissure
+Flamethrower
+Flash
+Fly
+Focus Energy
+Fury Attack
+Fury Swipes
+Glare
+Growl
+Growth
+Guillotine
+Gust
+Harden
+Haze
+Headbutt
+Hi Jump Kick
+Horn Attack
+Horn Drill
+Hydro Pump
+Hyper Beam
+Hyper Fang
+Hypnosis
+Ice Beam
+Ice Punch
+Jump Kick
+Karate Chop
+Kinesis
+Leech Life
+Leech Seed
+Leer
+Lick
+Light Screen
+Lovely Kiss
+Low Kick
+Meditate
+Mega Drain
+Mega Kick
+Mega Punch
+Metronome
+Mimic
+Minimize
+Mirror Move
+Mist
+Night Shade
+Pay Day
+Peck
+Petal Dance
+Pin Missile
+Poison Gas
+Poison Sting
+Poisonpowder
+Pound
+Psybeam
+Psychic
+Psywave
+Quick Attack
+Rage
+Razor Leaf
+Razor Wind
+Recover
+Reflect
+Rest
+Roar
+Rock Slide
+Rock Throw
+Rolling Kick
+Sand-Attack
+Scratch
+Screech
+Seismic Toss
+Selfdestruct
+Sharpen
+Sing
+Skull Bash
+Sky Attack
+Slam
+Slash
+Sleep Powder
+Sludge
+Smog
+Smokescreen
+Softboiled
+Solarbeam
+Sonicboom
+Spike Cannon
+Splash
+Spore
+Stomp
+Strength
+String Shot
+Struggle
+Stun Spore
+Submission
+Substitute
+Super Fang
+Supersonic
+Surf
+Swift
+Swords Dance
+Tackle
+Tail Whip
+Take Down
+Teleport
+Thrash
+Thunder
+Thunder Wave
+Thunderbolt
+Thunderpunch
+Thundershock
+Toxic
+Transform
+Tri Attack
+Twineedle
+Vicegrip
+Vine Whip
+Water Gun
+Waterfall
+Whirlwind
+Wing Attack
+Withdraw
+Wrap
