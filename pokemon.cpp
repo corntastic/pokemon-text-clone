@@ -914,7 +914,7 @@ void gym(int x, int y) // gym script, if through the gauntlet, award badge and i
 						}	
 					}
 					else
-						win == 0;
+						win = 0;
 				
 				}
 				
@@ -950,6 +950,8 @@ void gym(int x, int y) // gym script, if through the gauntlet, award badge and i
 						}
 						
 					}
+					else
+						win = 0;					
 				
 				}
 				
@@ -990,7 +992,8 @@ void gym(int x, int y) // gym script, if through the gauntlet, award badge and i
 								}
 						}	
 					}
-				
+					else
+						win = 0;				
 				}
 				
 				
