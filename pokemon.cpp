@@ -54,7 +54,7 @@ void gym(int x, int y);
 void event(int& x, int& y, int flag[10][11]);
 void partyorg();
 
-int pokedex[152], x, y; // pokedex numbers, x and y coordinates
+int x, y; // x and y coordinates
 string pokedexname[152], trainers[30][2], movelist[167]; // pokemon names, trainer job/name, move names
 int party[6][8], pokestat[152][9], moveset[152][100], movestats[167][3]; // party pokemon+stats, pokemon stats, pokemon movesets, move stats
 double typechart[16][16]; // type chart 
@@ -2158,11 +2158,44 @@ void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl, in
 				else
 				;
 					
-				
-				
-				modifier = stab*effective(pmove,epoke)*(1-rand()%15/100.0)*crit;
+				switch (pmove)
+				{
+					case 99: // psywave
+						damage = plvl * ((rand()%6)/10.0 + 1);
+						break;
+					case 139: //super fang
+						damage = eHP/2;
+						break;
+					case 35: // dragon rage
+						damage = 40;
+						break;
+					case 88: // night shade
+					case 114: // seismic toss
+						if (effective(pmove,epoke) == 0)
+						{
+							damage = 0;
+						}
+						else
+						{
+							damage = plvl;
+						}
+						break;
+					case 128: // sonic boom
+						if (effective(pmove,epoke) == 0)
+						{
+							damage = 0;
+						}
+						else
+						{					
+							damage = 20;
+						}
+						break;
+					default:
+						modifier = stab*effective(pmove,epoke)*(1-rand()%15/100.0)*crit;							
+						damage = (((2.0*plvl+10)/250)*(attack/defense)*(movestats[pmove][1])+2)*modifier;	
+						break;					
+				}
 					
-				damage = (((2.0*plvl+10)/250)*(attack/defense)*(movestats[pmove][1])+2)*modifier;
 				
 				cout << endl;
 				
@@ -2215,12 +2248,43 @@ void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl, in
 			else
 			;
 			
-			modifier = stab*effective(emove,ppoke)*(1-rand()%15/100.0)*crit;
-				
-			damage = (((2.0*elvl+10)/250)*(attack/defense)*(movestats[emove][1])+2)*modifier;
-			
-			
-			modifier = stab*effective(pmove,epoke)*(1-rand()%15/100.0)*crit;
+			switch (emove)
+			{
+				case 99: // psywave
+					damage = elvl * ((rand()%6)/10.0 + 1);
+					break;
+				case 139: //super fang
+					damage = pHP/2;
+					break;
+				case 35: // dragon rage
+					damage = 40;
+					break;
+				case 88: // night shade
+				case 114: // seismic toss
+					if (effective(emove,ppoke) == 0)
+					{
+						damage = 0;
+					}
+					else
+					{
+						damage = elvl;
+					}
+					break;
+				case 128: // sonic boom
+					if (effective(emove,ppoke) == 0)
+					{
+						damage = 0;
+					}
+					else
+					{					
+						damage = 20;
+					}
+					break;
+				default:
+					modifier = stab*effective(emove,ppoke)*(1-rand()%15/100.0)*crit;							
+					damage = (((2.0*elvl+10)/250)*(attack/defense)*(movestats[emove][1])+2)*modifier;	
+					break;				
+			}
 			
 			cout << endl;
 				
@@ -2274,9 +2338,43 @@ void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl, in
 			else
 			;
 			
-			modifier = stab*effective(emove,ppoke)*(1-rand()%15/100.0)*crit;
-				
-			damage = (((2.0*elvl+10)/250)*(attack/defense)*(movestats[emove][1])+2)*modifier;
+			switch (emove)
+			{
+				case 99: // psywave
+					damage = elvl * ((rand()%6)/10.0 + 1);
+					break;
+				case 139: //super fang
+					damage = pHP/2;
+					break;
+				case 35: // dragon rage
+					damage = 40;
+					break;
+				case 88: // night shade
+				case 114: // seismic toss
+					if (effective(emove,ppoke) == 0)
+					{
+						damage = 0;
+					}
+					else
+					{
+						damage = elvl;
+					}
+					break;
+				case 128: // sonic boom
+					if (effective(emove,ppoke) == 0)
+					{
+						damage = 0;
+					}
+					else
+					{					
+						damage = 20;
+					}
+					break;
+				default:
+					modifier = stab*effective(emove,ppoke)*(1-rand()%15/100.0)*crit;							
+					damage = (((2.0*elvl+10)/250)*(attack/defense)*(movestats[emove][1])+2)*modifier;	
+					break;
+				}
 						
 			cout << endl;
 			stab = 1;
@@ -2328,10 +2426,43 @@ void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl, in
 				else
 				;
 				
-				
-				modifier = stab*effective(pmove,epoke)*(1-rand()%15/100.0)*crit;
-					
-				damage =(((2.0*plvl+10)/250)*(attack/defense)*(movestats[pmove][1])+2)*modifier;
+				switch (pmove)
+				{
+					case 99: // psywave
+						damage = plvl * ((rand()%6)/10.0 + 1);
+						break;
+					case 139: //super fang
+						damage = eHP/2;
+						break;
+					case 35: // dragon rage
+						damage = 40;
+						break;
+					case 88: // night shade
+					case 114: // seismic toss
+						if (effective(pmove,epoke) == 0)
+						{
+							damage = 0;
+						}
+						else
+						{
+							damage = plvl;
+						}
+						break;
+					case 128: // sonic boom
+						if (effective(pmove,epoke) == 0)
+						{
+							damage = 0;
+						}
+						else
+						{					
+							damage = 20;
+						}
+						break;
+					default:
+						modifier = stab*effective(pmove,epoke)*(1-rand()%15/100.0)*crit;							
+						damage = (((2.0*plvl+10)/250)*(attack/defense)*(movestats[pmove][1])+2)*modifier;	
+						break;
+				}
 				
 				cout << endl;
 				stab = 1;
@@ -2502,10 +2633,6 @@ void loadfile() // loads global vars
 	
 	
 	pokedexloader.open("pokedex.txt");
-	for(i = 0; i < 152; ++i)
-        {
-            pokedex[i] = i;
-        }
     for(i = 0; i < 152; ++i)
         {
             pokedexloader >> pokedexname[i];
@@ -2703,15 +2830,15 @@ void gamestart() // pokeselect and first battle
 				{
 					case 1:
 						cout << "You got Bulbasaur!" << endl;
-						pokeget(pokedex[1], 5, stat("HP", 1, 5));
+						pokeget(1, 5, stat("HP", 1, 5));
 						break;
 					case 2: 
 						cout << "You got Charmander!" << endl;
-						pokeget(pokedex[4], 5, stat("HP", 4, 5));
+						pokeget(4, 5, stat("HP", 4, 5));
 						break;
 					case 3: 
 						cout << "You got Squirtle!" << endl;
-						pokeget(pokedex[7], 5, stat("HP", 7, 5));
+						pokeget(7, 5, stat("HP", 7, 5));
 						break;
 					default:
 						continue;
