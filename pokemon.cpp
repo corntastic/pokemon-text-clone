@@ -2,21 +2,20 @@ using namespace std;
 /*
 
 Arrays:
-                pokedex: # of pokemon
-                pokedexname: name of pokemon, index = #
-                trainers: trainer job colum 1, name col 2
-                movelist: name of moves
-                party: list ot party pokemon. # level hp exp move1 move2 move3
-move 4
-                box: list of box pokes ^^
-                pokestat: pokemon [base stats of HP ATK DEF SA SD SPD, evolve
-level, type1, type2]
-                moveset: [pokemon][level]
-                movestats [move#] [type, power, acc]
-                map [x] [y]
-                typechart [attacking type] [def type] norm fire water ele grass
-ice fight psn grnd fly psy bug rck ghost drg default
-
+    pokedex: # of pokemon
+    pokedexname: name of pokemon, index = #
+    trainers: trainer job colum 1, name col 2
+    movelist: name of moves
+    party: list ot party pokemon. # level hp exp move1 move2 move3 move 4
+    box: list of box pokes ^^
+    pokestat: pokemon [base stats of HP ATK DEF SA SD SPD,
+                                     evolve level, type1, type2]
+    moveset: [pokemon][level]
+    movestats [move#] [type, power, acc]
+    map [x] [y]
+    typechart [attacking type] [def type]
+        norm fire water ele grass ice fight psn grnd fly psy bug rck ghost drg
+        default
 */
 
 #include <iostream>
