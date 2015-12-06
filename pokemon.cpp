@@ -32,7 +32,7 @@ Arrays:
  * system("pause") or input loop */
 const string direct = "Go up/left/down/right? (w/a/s/d): ";
 
-void pokeget(int, int, int);
+void pokeget(int, int, int, int);
 void loadfile();
 void savefile();
 int trainerBattle(string job, string name, int templevel, int levelMod,
@@ -44,7 +44,8 @@ int moves(int pokemon, int& level);
 int moveselect(int enemypokemon, int enemylvl, int pPokemon);
 double effective(int move, int pokemon);
 void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl,
-                int emove, int pmove);
+                int emove, int pmove, int& estatus, int& pstatus, 
+				double estats[], double pstats[]);
 void xp(double trainer, int epoke, int elvl, int ppoke, int& pexp, int& plvl,
         int partypos);
 char travel(int& x, int& y);
@@ -52,21 +53,23 @@ int bounds(int x, int y, char d);
 int city(int x, int y);
 int trainerpokemon(int level);
 int wildBattle(int level, int levelMod, int pokemon);
-int capture(int pokemon, int hp, int maxhp);
+int capture(int pokemon, int hp, int maxhp, int status);
 void pokebox();
 int wildpoke(int x, int y);
 void gym(int x, int y);
 void event(int& x, int& y, int flag[10][11]);
 void partyorg();
+void pokeheal();
+string status(int intstatus);
 
 int x, y;  // x and y coordinates
 string pokedexname[152], trainers[30][2],
     movelist[167];  // pokemon names, trainer job/name, move names
-int party[6][8], pokestat[152][9], moveset[152][100],
-    movestats[167][3];  // party pokemon+stats, pokemon stats, pokemon movesets,
+int party[6][9], pokestat[152][9], moveset[152][93],
+    movestats[167][18];  // party pokemon+stats, pokemon stats, pokemon movesets,
                         // move stats
 double typechart[16][16];             // type chart
-int box[30][8];                       // box pokemon
+int box[30][9];                       // box pokemon
 string map[10][11];                   // map names
 char gender;                          // player gender
 string pName;                         // planer name
@@ -144,13 +147,7 @@ char travel(int& x, int& y)  // map menu
                 return 'w';
               } else  // else sends you to last town healed at
               {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! We hope to see "
-                        "you again!"
-                     << endl;
-                x = lastx;
-                y = lasty;
+                pokeheal();
                 return 'w';
               }
             else if (battleChance < 55)  // checks if its a random battle
@@ -161,13 +158,7 @@ char travel(int& x, int& y)  // map menu
                 return 'w';
               } else  // else sends you to last town healed at
               {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! We hope to see "
-                        "you again!"
-                     << endl;
-                x = lastx;
-                y = lasty;
+                pokeheal();
                 return 'w';
               }
             else  // if not a random battle
@@ -220,13 +211,7 @@ char travel(int& x, int& y)  // map menu
                   return 's';
                 } else  // else sends you to last town healed at
                 {
-                  for (int i = 0; i < 6; i++)
-                    party[i][2] = stat("HP", party[i][0], party[i][1]);
-                  cout << "Nurse Joy: All pokemon fully restored! We hope to "
-                          "see you again!"
-                       << endl;
-                  x = lastx;
-                  y = lasty;
+               		pokeheal();
                   return 's';
                 }
               else if (battleChance < 55)  // checks if its a random battle
@@ -237,13 +222,7 @@ char travel(int& x, int& y)  // map menu
                   return 's';
                 } else  // else moves to last pokecenter
                 {
-                  for (int i = 0; i < 6; i++)
-                    party[i][2] = stat("HP", party[i][0], party[i][1]);
-                  cout << "Nurse Joy: All pokemon fully restored! We hope to "
-                          "see you again!"
-                       << endl;
-                  x = lastx;
-                  y = lasty;
+                	pokeheal();
                   return 's';
                 }
 
@@ -281,13 +260,7 @@ char travel(int& x, int& y)  // map menu
                 return 'd';
               } else  // else sends you to last town healed at
               {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! We hope to see "
-                        "you again!"
-                     << endl;
-                x = lastx;
-                y = lasty;
+                pokeheal();
                 return 'd';
               }
             else if (battleChance < 55)  // checks if its a random battle
@@ -298,13 +271,7 @@ char travel(int& x, int& y)  // map menu
                 return 'd';
               } else  // if losing battle, return to last pokecenter
               {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! We hope to see "
-                        "you again!"
-                     << endl;
-                x = lastx;
-                y = lasty;
+                pokeheal();
                 return 'd';
               }
             else  // if no battle
@@ -354,13 +321,7 @@ char travel(int& x, int& y)  // map menu
                   return 'a';
                 } else  // else sends you to last town healed at
                 {
-                  for (int i = 0; i < 6; i++)
-                    party[i][2] = stat("HP", party[i][0], party[i][1]);
-                  cout << "Nurse Joy: All pokemon fully restored! We hope to "
-                          "see you again!"
-                       << endl;
-                  x = lastx;
-                  y = lasty;
+               		pokeheal();
                   return 'a';
                 }
               else if (battleChance < 55)  // checks if its a random battle
@@ -371,13 +332,7 @@ char travel(int& x, int& y)  // map menu
                   return 'a';
                 } else  // if lost battle, move back to last pokecenter
                 {
-                  for (int i = 0; i < 6; i++)
-                    party[i][2] = stat("HP", party[i][0], party[i][1]);
-                  cout << "Nurse Joy: All pokemon fully restored! We hope to "
-                          "see you again!"
-                       << endl;
-                  x = lastx;
-                  y = lasty;
+                	pokeheal();
                   return 'a';
                 }
               else  // if no battle
@@ -429,13 +384,10 @@ char travel(int& x, int& y)  // map menu
         return 'q';
       case 'p':  // heal pokemon if in a city
         if (city(x, y)) {
-          for (int i = 0; i < 6; i++)
-            party[i][2] = stat("HP", party[i][0], party[i][1]);
-          cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                  "again! "
-               << endl;
           lastx = x;
           lasty = y;
+          
+          pokeheal();
           continue;
         } else {
           cout << "Nurse Joy doesn't have an ambulance service! " << endl;
@@ -452,13 +404,7 @@ char travel(int& x, int& y)  // map menu
               trainerpokemon(maplvl[x][y]));
 
           if (win == 0) {
-            for (int i = 0; i < 6; i++)
-              party[i][2] = stat("HP", party[i][0], party[i][1]);
-            cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                    "again!"
-                 << endl;
-            x = lastx;
-            y = lasty;
+            pokeheal();
           }
           break;
         } else {
@@ -472,13 +418,7 @@ char travel(int& x, int& y)  // map menu
           win = wildBattle(maplvl[x][y], 3, wildpoke(x, y));
 
           if (win == 0) {
-            for (int i = 0; i < 6; i++)
-              party[i][2] = stat("HP", party[i][0], party[i][1]);
-            cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                    "again! "
-                 << endl;
-            x = lastx;
-            y = lasty;
+            pokeheal();
           }
           break;
         } else {
@@ -564,15 +504,8 @@ void event(int& x, int& y, int flag[10][11])  // scripted events
                    << "Gary: You're nowhere near as good as me, pal!" << endl
                    << "Gary: Go train some more, you loser!" << endl
                    << endl;
-              for (int i = 0; i < 6; i++)
-                party[i][2] = stat("HP", party[i][0], party[i][1]);
-              cout << "Nurse Joy: All pokemon fully restored! We hope to see "
-                      "you again!"
-                   << endl;
+                pokeheal();
               flag[x][y] = -1;
-              x = lastx;
-              y = lasty;
-
               break;
             }
 
@@ -892,11 +825,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
               cout << "Call Nurse Joy (p) or proceed (w)? ";
               cin >> choice;
               if (choice == 'p') {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! Thank you for "
-                        "using the Pokemon Leaguebulance!"
-                     << endl;
+              	lastx = x;
+              	lasty = y;
+                pokeheal();
                 joy--;
               }
             }
@@ -925,11 +856,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
               cout << "Call Nurse Joy (p) or proceed (w)? ";
               cin >> choice;
               if (choice == 'p') {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! Thank you for "
-                        "using the Pokemon Leaguebulance!"
-                     << endl;
+              	lastx = x;
+              	lasty = y;
+                pokeheal();
                 joy--;
               }
             }
@@ -963,11 +892,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
               cout << "Call Nurse Joy (p) or proceed (w)? ";
               cin >> choice;
               if (choice == 'p') {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! Thank you for "
-                        "using the Pokemon Leaguebulance!"
-                     << endl;
+              	lastx = x;
+              	lasty = y;
+                pokeheal();
                 joy--;
               }
             }
@@ -1010,11 +937,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
               cout << "Call Nurse Joy (p) or proceed (w)? ";
               cin >> choice;
               if (choice == 'p') {
-                for (int i = 0; i < 6; i++)
-                  party[i][2] = stat("HP", party[i][0], party[i][1]);
-                cout << "Nurse Joy: All pokemon fully restored! Thank you for "
-                        "using the Pokemon Leaguebulance!"
-                     << endl;
+              	lastx = x;
+              	lasty = y;
+                pokeheal();
                 joy--;
               }
             }
@@ -1067,11 +992,7 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
 
         if (win == 0)  // loss to gary or anyone else
         {
-          for (int i = 0; i < 6; i++)
-            party[i][2] = stat("HP", party[i][0], party[i][1]);
-          cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                  "again!"
-               << endl;
+          pokeheal();
           break;
         } else  // win against gary
         {
@@ -1153,12 +1074,12 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
                   "still want to challenge me? Fine then, show me your best!\n"
                << endl;
           if (trainerBattle("Leader", "Brock", 12, 0, 2, 74, 95)) {
-            cout << "Brock:I took you for granted.\nBrock: As proof of your "
+            cout << "Brock: I took you for granted.\nBrock: As proof of your "
                     "victory, here's the Boulder Badge!"
                  << endl
                  << pName << " received the Boulder Badge!" << endl
                  << "Brock: That's an official Pokemon League badge. It's "
-                    "bearer becomes more powerful."
+                    "bearer becomes more powerful.\n"
                  << "Brock: There are all kinds of trainers in the "
                     "world.\nBrock: You appear to be very gifted as a pokemon "
                     "trianer. \nBrock: Go to the gym in Cerulean City and test "
@@ -1170,11 +1091,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
       } else if (x == 7 && badge[2] != 1)  // cerulean
       {
@@ -1210,11 +1129,9 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
 
       } else
@@ -1263,11 +1180,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+        
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
 
       } else if (x == 7 && badge[6] != 1)  // saffron
@@ -1315,11 +1231,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
             break;
           }
         }
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+        
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
 
       } else
@@ -1381,11 +1296,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+       
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
 
       } else {
@@ -1424,11 +1338,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+        
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
       }
       break;
@@ -1468,11 +1381,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
           }
         }
 
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+        
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
       }
       break;
@@ -1511,11 +1423,10 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
             break;
           }
         }
-        for (int i = 0; i < 6; i++)
-          party[i][2] = stat("HP", party[i][0], party[i][1]);
-        cout << "Nurse Joy: All pokemon fully restored! We hope to see you "
-                "again!"
-             << endl;
+        
+      	lastx = x;
+      	lasty = y;
+        pokeheal();
         break;
       }
       break;
@@ -1526,6 +1437,34 @@ void gym(int x, int y)  // gym script, if through the gauntlet, award badge and
   return;
 }
 
+string status(int intstatus)
+{  		
+	string estatus;
+	
+	switch(intstatus){
+		case 0:
+			estatus = "";
+			break;
+		case 1:
+			estatus = "Psn";
+			break;
+		case 2:
+			estatus = "Burn";
+			break;
+		case 3:
+			estatus = "Prlz";
+			break;
+		case 4:
+			estatus = "Frz";
+			break;
+		case 5:
+			estatus = "Slp";
+			break;
+	}
+	
+	return estatus;
+}
+	
 void pokebox()  // box functions
 {
   int choice, i, quit = 0;
@@ -1568,12 +1507,12 @@ void pokebox()  // box functions
 
         cout << "Transferred " << pokedexname[party[--choice][0]]
              << " to the box." << endl;
-        int j = choice;
+        int j = 0;
         while (box[j][0] != 0) j++;
         for (int k = 0; k < 8; k++) box[j][k] = party[choice][k];
         for (i = choice; i < 5; i++)
-          for (j = 0; j < 8; j++) party[i][j] = party[i + 1][j];
-        for (j = 0; j < 8; j++) party[5][j] = 0;
+          for (j = 0; j < 9; j++) party[i][j] = party[i + 1][j];
+        for (j = 0; j < 9; j++) party[5][j] = 0;
         break;
       }
       case 2: {
@@ -1642,14 +1581,15 @@ void pokebox()  // box functions
   } while (quit != 1);
 }
 
-void partyorg() {
+void partyorg() 
+{
   int i, pokemon1, pokemon2;
   char choice = 't';
   for (i = 0; i < 6; i++)
     if (party[i][0] != 0)
       cout << "(" << i + 1 << ") " << setw(10) << pokedexname[party[i][0]]
            << '\t' << "Lvl " << party[i][1] << '\t' << party[i][2] << "/"
-           << stat("HP", party[i][0], party[i][1]) << endl;
+           << stat("HP", party[i][0], party[i][1]) << setw(5) << status(party[i][8]) << endl;
 
   cout << "Choose a pokemon: ";
   cin >> pokemon1;
@@ -1681,7 +1621,7 @@ void partyorg() {
           if (party[i][0] != 0 && party[i][0] != party[pokemon1][0])
             cout << "(" << i + 1 << ") " << setw(10) << pokedexname[party[i][0]]
                  << '\t' << "Lvl " << party[i][1] << '\t' << party[i][2] << "/"
-                 << stat("HP", party[i][0], party[i][1]) << endl;
+                 << stat("HP", party[i][0], party[i][1]) << setw(5) << status(party[i][8]) << endl;
 
         cout << "Choose another pokemon to swap with: ";
         cin >> pokemon2;
@@ -1699,7 +1639,7 @@ void partyorg() {
         }
 
         pokemon2--;
-        for (i = 0; i < 8; i++) {
+        for (i = 0; i < 9; i++) {
           temppoke[i] = party[pokemon2][i];
           party[pokemon2][i] = party[pokemon1][i];
           party[pokemon1][i] = temppoke[i];
@@ -1711,6 +1651,7 @@ void partyorg() {
              << pow(party[pokemon1][1] + 1, 3) - party[pokemon1][3] << '\n'
              << "HP: " << party[pokemon1][2] << "/"
              << stat("HP", party[pokemon1][0], party[pokemon1][1]) << '\n'
+             << "Status: " << ((party[pokemon1][8] == 0) ? "Healthy" : status(party[pokemon1][8])) << '\n'
              << "Attack: " << stat("A", party[pokemon1][0], party[pokemon1][1])
              << '\n'
              << "Defense: " << stat("D", party[pokemon1][0], party[pokemon1][1])
@@ -1758,7 +1699,10 @@ int wildBattle(int level, int levelMod,
 {
   if (levelMod > 0) level += rand() % levelMod;
   int i = 0, tCurHP = stat("HP", pokemon, level);
-  int choice, winner = 0;
+  int choice, winner = 0, intestatus = 0;
+  double pstatmods[7] = {1,1,1,1,1,1,1}, estatmods[7] = {1,1,1,1,1,1,1};
+  
+  string pstatus, estatus;
 
   cout << "\nA wild " << pokedexname[pokemon] << " appeared!" << endl;
 
@@ -1767,14 +1711,18 @@ int wildBattle(int level, int levelMod,
 
   while (party[i][2] != 0)
     while (party[i][2] != 0) {
-      cout << "\n\t\t\t\t" << tCurHP << "/" << stat("HP", pokemon, level)
-           << '\t' << "lv. " << level << " " << pokedexname[pokemon] << endl
+  		estatus = status(intestatus);
+		      	
+      cout << "\n\t\t\t" << tCurHP << "/" << stat("HP", pokemon, level)
+           << setw(5) << estatus << '\t' << "lv. " << level << " " << pokedexname[pokemon] << endl
            << endl;
       // enemy poke data
+      
+  		pstatus = status(party[i][8]);
 
       cout << "lv. " << party[i][1] << " " << pokedexname[party[i][0]] << '\t'
            << party[i][2] << "/" << stat("HP", party[i][0], party[i][1])
-           << endl;
+           << setw(5) << pstatus << endl;
       // your poke data
 
       cout << "Use " << movelist[party[i][4]] << " (1), "
@@ -1792,10 +1740,10 @@ int wildBattle(int level, int levelMod,
 
       if (choice == 5)  // ball throw
       {
-        int caught = capture(pokemon, tCurHP, stat("HP", pokemon, level));
+        int caught = capture(pokemon, tCurHP, stat("HP", pokemon, level), intestatus);
         if (caught == 1) {
           cout << "You caught a " << pokedexname[pokemon] << "!" << endl;
-          pokeget(pokemon, level, tCurHP);
+          pokeget(pokemon, level, tCurHP, intestatus);
           return 1;
         } else {
           cout << "Oh no! It broke free!" << endl;
@@ -1820,14 +1768,14 @@ int wildBattle(int level, int levelMod,
         choice = 0;
       }
 
-      else if (choice == 7) {
+      else if (choice == 7) { // swap
         int temppoke[8], pokemon2;
 
         for (int j = 0; j < 6; j++)
           if (party[j][0] != 0 && party[j][0] != party[i][0])
             cout << "(" << j + 1 << ") " << setw(10) << pokedexname[party[j][0]]
                  << '\t' << "Lvl " << party[j][1] << '\t' << party[j][2] << "/"
-                 << stat("HP", party[j][0], party[j][1]) << endl;
+                 << stat("HP", party[j][0], party[j][1]) << setw(5) << status(party[j][8]) << endl;
 
         cout << "Choose another pokemon to swap with: ";
         cin >> pokemon2;
@@ -1847,10 +1795,13 @@ int wildBattle(int level, int levelMod,
         pokemon2--;
         cout << pokedexname[party[i][0]] << ", return!" << endl;
         cout << "Go, " << pokedexname[party[pokemon2][0]] << "!" << endl;
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 9; j++) {
           temppoke[j] = party[pokemon2][j];
           party[pokemon2][j] = party[i][j];
           party[i][j] = temppoke[j];
+        }
+        for (int j = 0; j < 7; j++) {
+        	pstatmods[j] = 1;
         }
 
         choice = 0;
@@ -1861,7 +1812,8 @@ int wildBattle(int level, int levelMod,
       }
 
       turnResult(tCurHP, party[i][2], pokemon, party[i][0], level, party[i][1],
-                 moveselect(pokemon, level, party[i][0]), choice);
+                 moveselect(pokemon, level, party[i][0]), choice, intestatus, party[i][8], 
+				 estatmods, pstatmods);
 
       if (tCurHP == 0) {
         cout << "\nThe wild " << pokedexname[pokemon] << " fainted!" << endl;
@@ -1952,10 +1904,24 @@ int wildpoke(int x, int y)  // randoming which wild pokemon per area
   return wildpokemon;
 }
 
-int capture(int pokemon, int hp, int maxhp)  // capture check
+int capture(int pokemon, int hp, int maxhp, int status)  // capture check
 {
+  double statmult;
+  
+  switch(status) {
+  	case 0:
+	  statmult = 1;
+	case 1:
+	case 2:
+	case 3:
+		statmult = 1.5;
+	case 4:
+	case 5:
+		statmult = 2;
+	}
+  
   if (rand() % 255 < 80)
-    if ((maxhp * 255 * 4) / hp >= rand() % 255) return 1;
+    if (statmult * (maxhp * 255 * 4) / hp >= rand() % 255) return 1;
 
   return 0;
 }
@@ -1963,7 +1929,11 @@ int capture(int pokemon, int hp, int maxhp)  // capture check
 int trainerBattle(string job, string name, int templevel, int levelMod,
                   int SLMod, int pokemon0, int pokemon1, int pokemon2,
                   int pokemon3, int pokemon4, int pokemon5) {
-  int level = templevel;
+  int level = templevel, intestatus = 0;
+  string pstatus, estatus;
+  double pstatmods[7] = {1,1,1,1,1,1,1}, estatmods[7] = {1,1,1,1,1,1,1};
+  
+  
   if (levelMod > 0) level += rand() % levelMod;
 
   int i = 0, j = 0, tCurHP = stat("HP", pokemon0, level);
@@ -1980,14 +1950,19 @@ int trainerBattle(string job, string name, int templevel, int levelMod,
 
   while (party[i][2] != 0)
     while (epoke[j] > 0 && party[i][2] != 0) {
-      cout << "\n\t\t\t\t" << tCurHP << "/" << stat("HP", epoke[j], level)
-           << '\t' << "lv. " << level << " " << pokedexname[epoke[j]] << endl
+    	
+  		estatus = status(intestatus);
+		      	
+      cout << "\n\t\t\t" << tCurHP << "/" << stat("HP", epoke[j], level)
+           << setw(5) << estatus << '\t' << "lv. " << level << " " << pokedexname[epoke[j]] << endl
            << endl;
       // enemy poke data
+      
+  		pstatus = status(party[i][8]);
 
       cout << "lv. " << party[i][1] << " " << pokedexname[party[i][0]] << '\t'
            << party[i][2] << "/" << stat("HP", party[i][0], party[i][1])
-           << endl;
+           << setw(5) << pstatus << endl;
       // your poke data
 
       cout << "Use " << movelist[party[i][4]] << " (1), "
@@ -2001,14 +1976,14 @@ int trainerBattle(string job, string name, int templevel, int levelMod,
         cin >> choice;
       }
 
-      if (choice == 5) {
+      if (choice == 5) { // swap
         int temppoke[8], pokemon2;
 
         for (int j = 0; j < 6; j++)
           if (party[j][0] != 0 && party[j][0] != party[i][0])
             cout << "(" << j + 1 << ") " << setw(10) << pokedexname[party[j][0]]
                  << '\t' << "Lvl " << party[j][1] << '\t' << party[j][2] << "/"
-                 << stat("HP", party[j][0], party[j][1]) << endl;
+                 << stat("HP", party[j][0], party[j][1]) << setw(5) << status(party[j][8]) << endl;
 
         cout << "Choose another pokemon to swap with: ";
         cin >> pokemon2;
@@ -2028,10 +2003,13 @@ int trainerBattle(string job, string name, int templevel, int levelMod,
         pokemon2--;
         cout << pokedexname[party[i][0]] << ", return!" << endl;
         cout << "Go, " << pokedexname[party[pokemon2][0]] << "!" << endl;
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 9; j++) {
           temppoke[j] = party[pokemon2][j];
           party[pokemon2][j] = party[i][j];
           party[i][j] = temppoke[j];
+        }
+        for (int j = 0; j < 7; j++) {
+        	pstatmods[j] = 1;
         }
 
         choice = 0;
@@ -2042,7 +2020,8 @@ int trainerBattle(string job, string name, int templevel, int levelMod,
       }
 
       turnResult(tCurHP, party[i][2], epoke[j], party[i][0], level, party[i][1],
-                 moveselect(epoke[j], level, party[i][0]), choice);
+                 moveselect(epoke[j], level, party[i][0]), choice, intestatus, party[i][8],
+				 estatmods, pstatmods);
 
       if (tCurHP == 0) {
         cout << job << " " << name << "'s " << pokedexname[epoke[j]]
@@ -2060,6 +2039,8 @@ int trainerBattle(string job, string name, int templevel, int levelMod,
           if (levelMod > 0) level = templevel + rand() % levelMod;
           level += SLMod;
           tCurHP = stat("HP", epoke[j], level);
+          for (int j = 0; j < 7; j++) estatmods[j] = 1;
+          intestatus = 0;
         }
       }
 
@@ -2112,7 +2093,6 @@ void xp(double trainer, int epoke, int elvl, int ppoke, int& pexp, int& plvl,
   int i, basesum = 0;
 
   for (i = 0; i < 6; i++) basesum += pokestat[epoke][i];
-
   int b = 0.47 * basesum - 55;
   int dexp = trainer * b * elvl / 7;
 
@@ -2125,7 +2105,7 @@ void xp(double trainer, int epoke, int elvl, int ppoke, int& pexp, int& plvl,
   //	cout << static_cast<int>(pow(tempxp,(1/3))) << " " << pow(tempxp,(1/3))
   //<< " " << cbrt(tempxp) << endl;
 
-  while (static_cast<int>(cbrt(tempxp)) > plvl) {
+  while (static_cast<int>(cbrt(tempxp)) > plvl) {	
     cout << pokedexname[ppoke] << " has leveled up!" << endl;
     plvl++;
     if (plvl >= pokestat[ppoke][6]) {
@@ -2135,10 +2115,10 @@ void xp(double trainer, int epoke, int elvl, int ppoke, int& pexp, int& plvl,
            << endl;
       ppoke++;
     }
-    if (moveset[ppoke][plvl + 1] != 0) {
+    if (moveset[ppoke][plvl] != 0) {
       for (i = 4; i < 8; i++)
         if (party[partypos][i] == 0) {
-          party[partypos][i] = moveset[ppoke][plvl + 1] - 1;
+          party[partypos][i] = moveset[ppoke][plvl];
           cout << pokedexname[ppoke] << " learned "
                << movelist[party[partypos][i]] << "!" << endl;
 
@@ -2147,361 +2127,926 @@ void xp(double trainer, int epoke, int elvl, int ppoke, int& pexp, int& plvl,
       if (i == 8) {
         int choice;
         cout << pokedexname[ppoke] << " would like to learn "
-             << movelist[moveset[ppoke][plvl + 1]]
+             << movelist[moveset[ppoke][plvl]]
              << ", but already knows 4 moves." << endl;
         cout << "Which move should be deleted?" << endl;
-        cout << movelist[party[partypos][4] - 1] << " (1), "
-             << movelist[party[partypos][5] - 1] << " (2), "
-             << movelist[party[partypos][6] - 1] << " (3), "
-             << movelist[party[partypos][7] - 1] << " (4): ";
+        cout << movelist[party[partypos][4]] << " (1), "
+             << movelist[party[partypos][5]] << " (2), "
+             << movelist[party[partypos][6]] << " (3), "
+             << movelist[party[partypos][7]] << " (4), "
+             << "Don't learn (5): ";
         cin >> choice;
         while (cin.fail()) {
           cin.clear();
           cin.ignore();
           cin >> i;
         }
-        party[partypos][choice + 3] = moveset[ppoke][plvl + 1];
-        cout << pokedexname[ppoke] << " forgot " << party[partypos][choice + 3]
-             << ", and learned " << movelist[moveset[ppoke][plvl] - 1] << endl;
+        if (choice == 5) {
+        	cout << pokedexname[ppoke] << " didn't learn " << movelist[moveset[ppoke][plvl]] << "." << endl;
+        }
+        else {
+        cout << pokedexname[ppoke] << " forgot " << movelist[party[partypos][choice + 3]]
+             << ", and learned " << movelist[moveset[ppoke][plvl]] << "!" << endl;
+        party[partypos][choice + 3] = moveset[ppoke][plvl];
+    	}
       }
     }
   }
 }
 
 void turnResult(int& eHP, int& pHP, int epoke, int ppoke, int elvl, int plvl,
-                int emove, int pmove)  // negotiates turns
+                int emove, int pmove, int& estatus, int& status, double estats[], double pstats[])  // negotiates turns
 {
-  int damage;
+  int damage=0, efrz=0, pfrz=0;
+  
+  if (estatus == 4 || estatus == 5) efrz = 1;
+  if (status == 4 || status == 4) pfrz = 1;
 
   double modifier, attack, defense, stab = 1, crit = 1;
 
-  if (stat("S", ppoke, plvl) >= stat("S", epoke, elvl)) {
+  if (stat("S", ppoke, plvl) * pstats[4] >= stat("S", epoke, elvl) * estats[4]) {
     if (pmove != 0) {
-      cout << pokedexname[ppoke] << " used " << movelist[pmove] << "!";
-      if ((rand() % 100) <= movestats[pmove][2]) {
-        // player first
-        if (movestats[pmove][0] == 1 || movestats[pmove][0] == 2 ||
-            movestats[pmove][0] == 3 || movestats[pmove][0] == 4 ||
-            movestats[pmove][0] == 5 || movestats[pmove][0] == 10) {
-          attack = stat("SA", ppoke, plvl);
-          defense = stat("SD", epoke, elvl);
-        } else {
-          attack = stat("A", ppoke, plvl);
-          defense = stat("D", epoke, elvl);
-        }
-
-        if (rand() % 16 == 1) {
-          crit = 2;
-          cout << " Critical hit!";
-        }
-
-        if (movestats[pmove][0] == pokestat[ppoke][8] ||
-            movestats[pmove][0] == pokestat[ppoke][9])
-          stab = 1.5;
-
-        if (effective(pmove, epoke) > 1)
-          cout << " Super effective!";
-        else if (effective(pmove, epoke) < 1)
-          cout << " It's not very effective. . .";
-        else if (effective(pmove, epoke) == 0)
-          cout << "It had no effect!";
-        else
-          ;
-
-        switch (pmove) {
-          case 99:  // psywave
-            damage = plvl * ((rand() % 6) / 10.0 + 1);
-            break;
-          case 139:  // super fang
-            damage = eHP / 2;
-            break;
-          case 35:  // dragon rage
-            damage = 40;
-            break;
-          case 88:   // night shade
-          case 114:  // seismic toss
-            if (effective(pmove, epoke) == 0) {
-              damage = 0;
-            } else {
-              damage = plvl;
-            }
-            break;
-          case 128:  // sonic boom
-            if (effective(pmove, epoke) == 0) {
-              damage = 0;
-            } else {
-              damage = 20;
-            }
-            break;
-          default:
-            modifier = stab * effective(pmove, epoke) *
-                       (1 - rand() % 15 / 100.0) * crit;
-            damage = (((2.0 * plvl + 10) / 250) * (attack / defense) *
-                          (movestats[pmove][1]) +
-                      2) *
-                     modifier;
-            break;
-        }
-
-        cout << endl;
-
-        stab = 1;
-        crit = 1;
-
-        if (eHP - damage <= 0) {
-          eHP = 0;
-          return;
-        } else
-          eHP -= damage;
-      } else
-        cout << " But it missed!" << endl;
-    }
+    	if (status != 3 || (status == 3 && rand()%100 <= 50)){
+    		if (pfrz == 1) {
+    			if (rand() % 100 <= 40) { 
+    				if (status == 4) cout << pokedexname[ppoke] << " thawed itself!" << endl;
+    				else cout << pokedexname[ppoke] << " woke up!" << endl;
+    				pfrz = 0;
+    				status = 0;
+    			}
+    		}
+    		if (pfrz != 1) {
+		      cout << pokedexname[ppoke] << " used " << movelist[pmove] << "! ";
+		      if ((rand() % 100) <= movestats[pmove][2] * (pstats[5]/estats[6]) || movestats[pmove][2] == 0) { 
+			      	if (movestats[pmove][1] != 0) { 
+				        // player first
+				        if (movestats[pmove][0] == 1 || movestats[pmove][0] == 2 ||
+				            movestats[pmove][0] == 3 || movestats[pmove][0] == 4 ||
+				            movestats[pmove][0] == 5 || movestats[pmove][0] == 10) {
+				          attack = stat("SA", ppoke, plvl) * pstats[2];
+				          defense = stat("SD", epoke, elvl) * estats[3];
+				        } else {
+				          attack = stat("A", ppoke, plvl) * pstats[0];
+				          defense = stat("D", epoke, elvl) * estats[1]	;
+				        }
+				        
+				        if (status == 2) attack /= 2;
+				
+				        if (rand() % 16 == 1) {
+				          crit = 2;
+				          cout << " Critical hit! ";
+				        }
+				
+				        if (movestats[pmove][0] == pokestat[ppoke][8] ||
+				            movestats[pmove][0] == pokestat[ppoke][9])
+				          stab = 1.5;
+				
+				        if (effective(pmove, epoke) > 1)
+				          cout << " Super effective! ";
+				        else if (effective(pmove, epoke) < 1)
+				          cout << " It's not very effective. . . ";
+				        else if (effective(pmove, epoke) == 0)
+				          cout << "It had no effect! ";
+				        else
+				          ;
+				
+				        switch (pmove) {
+				          case 99:  // psywave
+				            damage = plvl * ((rand() % 6) / 10.0 + 1);
+				            break;
+				          case 139:  // super fang
+				            damage = eHP / 2;
+				            break;
+				          case 35:  // dragon rage
+				            damage = 40;
+				            break;
+				          case 88:   // night shade
+				          case 114:  // seismic toss
+				            if (effective(pmove, epoke) == 0) {
+				              damage = 0;
+				            } else {
+				              damage = plvl;
+				            }
+				            break;
+				          case 128:  // sonic boom
+				            if (effective(pmove, epoke) == 0) {
+				              damage = 0;
+				            } else {
+				              damage = 20;
+				            }
+				            break;
+				          default:
+				            modifier = stab * effective(pmove, epoke) *
+				                       (1 - rand() % 15 / 100.0) * crit;
+				            damage = (((2.0 * plvl + 10) / 250) * (attack / defense) *
+				                          (movestats[pmove][1]) +
+				                      2) *
+				                     modifier;
+				            break;
+				        }
+			    }
+		
+			    if (movestats[pmove][3] != 0) { 
+			    	if ((rand() % 100) <= movestats[pmove][3]) { 
+				    	if (movestats[pmove][5] == 1) { // heal
+				    		pHP += .5*damage;
+				    		cout << pokedexname[ppoke] << " regained health!" << endl;
+				    	}
+				    	if (movestats[pmove][6] == 1) { // attack modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[0] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its attack lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[0] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][7] == 1) { // def modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[1] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its defense lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[1] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][8] == 1) { // sp attack modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[2] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its special attack lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[2] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its special attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][9] == 1) { // sp def modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[3] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its special defense lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[3] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its special defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][10] == 1) { // speed modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[4] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its speed lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[4] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its speed!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][11] == 1) { // acc modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[5] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its accuracy lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[5] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its accuracy!" << endl;;
+				    		}
+				    	}
+					    if (movestats[pmove][12] == 1) { // eva modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[6] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its evasion lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[6] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its evasion!" << endl;
+				    		}
+				    	}
+				    	
+				    	if (movestats[pmove][13] == 1) { // poison
+				    		estatus = 1;
+				    		cout << "Enemy " << pokedexname[epoke] << " was poisoned!" << endl;
+				    	}
+				    	else if (movestats[pmove][14] == 1) { // burn
+				    		estatus = 2;
+				    		cout << "Enemy " << pokedexname[epoke] << " was burned!" << endl;
+				    	}
+				    	else if (movestats[pmove][15] == 1) { //paralyze
+				    		estatus = 3;
+				    		cout << "Enemy " << pokedexname[epoke] << " was paralyzed!" << endl;
+				    	}
+				  		else if (movestats[pmove][16] == 1) { // freeze
+				  			estatus = 4;
+				    		cout << "Enemy " << pokedexname[epoke] << " was frozen solid!" << endl;
+				  		}
+				  		else if (movestats[pmove][17] == 1) { //sleep
+				  			estatus = 5;
+				    		cout << "Enemy " << pokedexname[epoke] << " was put to sleep!" << endl;
+				  		}
+				  		else {
+				  			;
+				  		}
+				    }
+			  		else {
+			  			if (movestats[pmove][1] == 0) cout << "But it failed!" << endl;
+			  		}
+				}   	    		
+		
+		        cout << endl;
+		
+		        stab = 1;
+		        crit = 1;
+		
+		        if (eHP - damage <= 0) {
+		          eHP = 0;
+		          return;
+		        } else
+		          eHP -= damage;
+		      } else
+		        cout << " But it missed!" << endl;
+	    	}
+	    	else {
+				if (status == 4) cout << pokedexname[ppoke] << " is frozen and can't move!" << endl;
+				else cout << pokedexname[ppoke] << " is fast asleep!" << endl;
+			}
+	    		
+	    }
+	    else cout << pokedexname[ppoke] << " is paralyzed and can't move!" << endl;
+	}
 
     // enemy turn
-    cout << "Enemy " << pokedexname[epoke] << " used " << movelist[emove]
-         << "!";
-    if ((rand() % 100) <= movestats[emove][2]) {
-      if (movestats[emove][0] == 1 || movestats[emove][0] == 2 ||
-          movestats[emove][0] == 3 || movestats[emove][0] == 4 ||
-          movestats[emove][0] == 5 || movestats[emove][0] == 10) {
-        attack = stat("SA", epoke, plvl);
-        defense = stat("SD", ppoke, elvl);
-      } else {
-        attack = stat("A", epoke, plvl);
-        defense = stat("D", ppoke, elvl);
-      }
-
-      if (movestats[emove][0] == pokestat[epoke][8] ||
-          movestats[emove][0] == pokestat[epoke][9])
-        stab = 1.5;
-
-      if (rand() % 16 == 1) {
-        crit = 2;
-        cout << " Critical hit!";
-      }
-
-      if (effective(emove, ppoke) > 1)
-        cout << " Super effective!";
-      else if (effective(emove, ppoke) < 1)
-        cout << " It's not very effective. . .";
-      else if (effective(emove, ppoke) == 0)
-        cout << "It had no effect!";
-      else
-        ;
-
-      switch (emove) {
-        case 99:  // psywave
-          damage = elvl * ((rand() % 6) / 10.0 + 1);
-          break;
-        case 139:  // super fang
-          damage = pHP / 2;
-          break;
-        case 35:  // dragon rage
-          damage = 40;
-          break;
-        case 88:   // night shade
-        case 114:  // seismic toss
-          if (effective(emove, ppoke) == 0) {
-            damage = 0;
-          } else {
-            damage = elvl;
-          }
-          break;
-        case 128:  // sonic boom
-          if (effective(emove, ppoke) == 0) {
-            damage = 0;
-          } else {
-            damage = 20;
-          }
-          break;
-        default:
-          modifier =
-              stab * effective(emove, ppoke) * (1 - rand() % 15 / 100.0) * crit;
-          damage = (((2.0 * elvl + 10) / 250) * (attack / defense) *
-                        (movestats[emove][1]) +
-                    2) *
-                   modifier;
-          break;
-      }
-
-      cout << endl;
-
-      stab = 1;
-      crit = 1;
-
-      if (pHP - damage <= 0) {
-        pHP = 0;
-        return;
-      } else
-        pHP -= damage;
-    } else
-      cout << " But it missed!" << endl;
+    damage = 0;
+	if (estatus != 3 || (estatus == 3 && rand()%100 <= 50)){
+		if (efrz == 1) {
+			if (rand() % 100 <= 40) { 
+				if (estatus == 4) cout << "Enemy " << pokedexname[epoke] << " thawed itself!" << endl;
+				else cout << "Enemy " << pokedexname[epoke] << " woke up!" << endl;
+    			efrz = 0;
+    			estatus = 0;
+			}
+		}
+		if (efrz != 1) {
+		    cout << "Enemy " << pokedexname[epoke] << " used " << movelist[emove]
+		         << "! ";
+		    if ((rand() % 100) <= movestats[emove][2] * (estats[5]/pstats[6]) || movestats[emove][2] == 0) {
+				if (movestats[emove][1] != 0) {
+		    	
+			      if (movestats[emove][0] == 1 || movestats[emove][0] == 2 ||
+			          movestats[emove][0] == 3 || movestats[emove][0] == 4 ||
+			          movestats[emove][0] == 5 || movestats[emove][0] == 10) {
+			        attack = stat("SA", epoke, plvl) * estats[2];
+			        defense = stat("SD", ppoke, elvl) * pstats[3];
+			      } else {
+			        attack = stat("A", epoke, plvl) * estats[0];
+			        defense = stat("D", ppoke, elvl) * pstats[1];
+			      }
+					        
+			      if (status == 2) attack /= 2;
+			      if (movestats[emove][0] == pokestat[epoke][8] ||
+			          movestats[emove][0] == pokestat[epoke][9])
+			        stab = 1.5;
+			
+			      if (rand() % 16 == 1) {
+			        crit = 2;
+			        cout << " Critical hit! ";
+			      }
+			
+			      if (effective(emove, ppoke) > 1)
+			        cout << " Super effective! ";
+			      else if (effective(emove, ppoke) < 1)
+			        cout << " It's not very effective. . . ";
+			      else if (effective(emove, ppoke) == 0)
+			        cout << "It had no effect! ";
+			      else
+			        ;
+			
+			      switch (emove) {
+			        case 99:  // psywave
+			          damage = elvl * ((rand() % 6) / 10.0 + 1);
+			          break;
+			        case 139:  // super fang
+			          damage = pHP / 2;
+			          break;
+			        case 35:  // dragon rage
+			          damage = 40;
+			          break;
+			        case 88:   // night shade
+			        case 114:  // seismic toss
+			          if (effective(emove, ppoke) == 0) {
+			            damage = 0;
+			          } else {
+			            damage = elvl;
+			          }
+			          break;
+			        case 128:  // sonic boom
+			          if (effective(emove, ppoke) == 0) {
+			            damage = 0;
+			          } else {
+			            damage = 20;
+			          }
+			          break;
+			        default:
+			          modifier =
+			              stab * effective(emove, ppoke) * (1 - rand() % 15 / 100.0) * crit;
+			          damage = (((2.0 * elvl + 10) / 250) * (attack / defense) *
+			                        (movestats[emove][1]) +
+			                    2) *
+			                   modifier;
+			          break;
+			      }
+			  }
+			    if (movestats[emove][3] != 0) {
+			    	if ((rand() % 100) <= movestats[emove][3]) {
+				    	if (movestats[emove][5] == 1) { // heal
+				    		eHP += .5*damage;
+				    		cout << "Enemy " << pokedexname[epoke] << " regained health!" << endl;
+				    	}
+				    	if (movestats[emove][6] == 1) { // attack modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[0] *= .67;
+				    			cout << pokedexname[ppoke] << " had its attack lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[0] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][7] == 1) { // def modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[1] *= .67;
+				    			cout << pokedexname[ppoke] << " had its defense lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[1] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][8] == 1) { // sp attack modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[2] *= .67;
+				    			cout << pokedexname[ppoke] << " had its special attack lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[2] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its special attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][9] == 1) { // sp def modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[3] *= .67;
+				    			cout << pokedexname[ppoke] << " had its special defense lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[3] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its special defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][10] == 1) { // speed modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[4] *= .67;
+				    			cout << pokedexname[ppoke] << " had its speed lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[4] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its speed!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][11] == 1) { // acc modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[5] *= .67;
+				    			cout << pokedexname[ppoke] << " had its accuracy lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[5] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its accuracy!" << endl;;
+				    		}
+				    	}
+					    if (movestats[emove][12] == 1) { // eva modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[6] *= .67;
+				    			cout << pokedexname[ppoke] << " had its evasion lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[6] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its evasion!" << endl;
+				    		}
+				    	}
+				    	
+				    	if (movestats[emove][13] == 1) { // poison
+				    		status = 1;
+				    		cout << pokedexname[ppoke] << " was poisoned!" << endl;
+				    	}
+				    	else if (movestats[emove][14] == 1) { // burn
+				    		status = 2;
+				    		cout << pokedexname[ppoke] << " was burned!" << endl;
+				    	}
+				    	else if (movestats[emove][15] == 1) { //paralyze
+				    		status = 3;
+				    		cout << pokedexname[ppoke] << " was paralyzed!" << endl;
+				    	}
+				  		else if (movestats[emove][16] == 1) { // freeze
+				  			status = 4;
+				    		cout << pokedexname[ppoke] << " was frozen solid!" << endl;
+				  		}
+				  		else if (movestats[emove][17] == 1) { //sleep
+				  			status = 5;
+				    		cout << pokedexname[ppoke] << " was put to sleep!" << endl;
+				  		}
+				  		else {
+				  			;
+				  		}
+				    }
+			  		else {
+			  			if (movestats[emove][1] == 0) cout << "But it failed!" << endl;
+			  		}
+				}      
+		
+		
+		      cout << endl;
+		
+		      stab = 1;
+		      crit = 1;
+		
+		      if (pHP - damage <= 0) {
+		        pHP = 0;
+		        return;
+		      } else
+		        pHP -= damage;
+		    } else
+		      cout << " But it missed!" << endl;
+		  }
+    	else {
+			if (estatus == 4) cout << "Enemy " << pokedexname[epoke] << " is frozen and can't move!" << endl;
+			else cout << "Enemy " << pokedexname[epoke] << " is fast asleep!" << endl;
+		}
+	}
+	else cout << "Enemy " << pokedexname[epoke] << " is paralyzed and can't move!" << endl;
   } else {
     // enemy first
-    cout << "Enemy " << pokedexname[epoke] << " used " << movelist[emove]
-         << "!";
-    if ((rand() % 100) <= movestats[emove][2]) {
-      if (movestats[emove][0] == 1 || movestats[emove][0] == 2 ||
-          movestats[emove][0] == 3 || movestats[emove][0] == 4 ||
-          movestats[emove][0] == 5 || movestats[emove][0] == 10) {
-        attack = stat("SA", epoke, plvl);
-        defense = stat("SD", ppoke, elvl);
-      } else {
-        attack = stat("A", epoke, plvl);
-        defense = stat("D", ppoke, elvl);
-      }
-
-      if (movestats[emove][0] == pokestat[epoke][8] ||
-          movestats[emove][0] == pokestat[epoke][9])
-        stab = 1.5;
-
-      if (rand() % 16 == 1) {
-        crit = 2;
-        cout << " Critical hit!";
-      }
-
-      if (effective(emove, ppoke) > 1)
-        cout << " Super effective!";
-      else if (effective(emove, ppoke) < 1)
-        cout << " It's not very effective. . .";
-      else if (effective(emove, ppoke) == 0)
-        cout << "It had no effect!";
-      else
-        ;
-
-      switch (emove) {
-        case 99:  // psywave
-          damage = elvl * ((rand() % 6) / 10.0 + 1);
-          break;
-        case 139:  // super fang
-          damage = pHP / 2;
-          break;
-        case 35:  // dragon rage
-          damage = 40;
-          break;
-        case 88:   // night shade
-        case 114:  // seismic toss
-          if (effective(emove, ppoke) == 0) {
-            damage = 0;
-          } else {
-            damage = elvl;
-          }
-          break;
-        case 128:  // sonic boom
-          if (effective(emove, ppoke) == 0) {
-            damage = 0;
-          } else {
-            damage = 20;
-          }
-          break;
-        default:
-          modifier =
-              stab * effective(emove, ppoke) * (1 - rand() % 15 / 100.0) * crit;
-          damage = (((2.0 * elvl + 10) / 250) * (attack / defense) *
-                        (movestats[emove][1]) +
-                    2) *
-                   modifier;
-          break;
-      }
-
-      cout << endl;
-      stab = 1;
-      crit = 1;
-
-      if (pHP - damage <= 0) {
-        pHP = 0;
-        return;
-      } else
-        pHP -= damage;
-    } else
-      cout << " But it missed!" << endl;
-
+    damage = 0;
+	if (estatus != 3 || (estatus == 3 && rand()%100 <= 50)){
+		if (efrz == 1) {
+			if (rand() % 100 <= 40) { 
+				if (estatus == 4) cout << "Enemy " << pokedexname[epoke] << " thawed itself!" << endl;
+				else cout << "Enemy " << pokedexname[epoke] << " woke up!" << endl;
+    			efrz = 0;
+    			estatus = 0;
+			}
+		}
+		if (efrz != 1) {
+		    cout << "Enemy " << pokedexname[epoke] << " used " << movelist[emove]
+		         << "! ";
+		    if ((rand() % 100) <= movestats[emove][2] * (estats[5]/pstats[6]) || movestats[emove][2] == 0) {
+				if (movestats[emove][1] != 0) {
+		    	
+			      if (movestats[emove][0] == 1 || movestats[emove][0] == 2 ||
+			          movestats[emove][0] == 3 || movestats[emove][0] == 4 ||
+			          movestats[emove][0] == 5 || movestats[emove][0] == 10) {
+			        attack = stat("SA", epoke, plvl) * estats[2];
+			        defense = stat("SD", ppoke, elvl) * pstats[3];
+			      } else {
+			        attack = stat("A", epoke, plvl) * estats[0];
+			        defense = stat("D", ppoke, elvl) * pstats[1];
+			      }
+					        
+			      if (status == 2) attack /= 2;
+			      if (movestats[emove][0] == pokestat[epoke][8] ||
+			          movestats[emove][0] == pokestat[epoke][9])
+			        stab = 1.5;
+			
+			      if (rand() % 16 == 1) {
+			        crit = 2;
+			        cout << " Critical hit! ";
+			      }
+			
+			      if (effective(emove, ppoke) > 1)
+			        cout << " Super effective! ";
+			      else if (effective(emove, ppoke) < 1)
+			        cout << " It's not very effective. . . ";
+			      else if (effective(emove, ppoke) == 0)
+			        cout << "It had no effect! ";
+			      else
+			        ;
+			
+			      switch (emove) {
+			        case 99:  // psywave
+			          damage = elvl * ((rand() % 6) / 10.0 + 1);
+			          break;
+			        case 139:  // super fang
+			          damage = pHP / 2;
+			          break;
+			        case 35:  // dragon rage
+			          damage = 40;
+			          break;
+			        case 88:   // night shade
+			        case 114:  // seismic toss
+			          if (effective(emove, ppoke) == 0) {
+			            damage = 0;
+			          } else {
+			            damage = elvl;
+			          }
+			          break;
+			        case 128:  // sonic boom
+			          if (effective(emove, ppoke) == 0) {
+			            damage = 0;
+			          } else {
+			            damage = 20;
+			          }
+			          break;
+			        default:
+			          modifier =
+			              stab * effective(emove, ppoke) * (1 - rand() % 15 / 100.0) * crit;
+			          damage = (((2.0 * elvl + 10) / 250) * (attack / defense) *
+			                        (movestats[emove][1]) +
+			                    2) *
+			                   modifier;
+			          break;
+			      }
+			  }
+			    if (movestats[emove][3] != 0) {
+			    	if ((rand() % 100) <= movestats[emove][3]) {
+				    	if (movestats[emove][5] == 1) { // heal
+				    		eHP += .5*damage;
+				    		cout << "Enemy " << pokedexname[epoke] << " regained health!" << endl;
+				    	}
+				    	if (movestats[emove][6] == 1) { // attack modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[0] *= .67;
+				    			cout << pokedexname[ppoke] << " had its attack lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[0] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][7] == 1) { // def modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[1] *= .67;
+				    			cout << pokedexname[ppoke] << " had its defense lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[1] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][8] == 1) { // sp attack modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[2] *= .67;
+				    			cout << pokedexname[ppoke] << " had its special attack lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[2] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its special attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][9] == 1) { // sp def modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[3] *= .67;
+				    			cout << pokedexname[ppoke] << " had its special defense lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[3] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its special defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][10] == 1) { // speed modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[4] *= .67;
+				    			cout << pokedexname[ppoke] << " had its speed lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[4] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its speed!" << endl;
+				    		}
+				    	}
+				    	if (movestats[emove][11] == 1) { // acc modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[5] *= .67;
+				    			cout << pokedexname[ppoke] << " had its accuracy lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[5] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its accuracy!" << endl;;
+				    		}
+				    	}
+					    if (movestats[emove][12] == 1) { // eva modifier
+				    		if (movestats[emove][4] == 1) {
+				    			pstats[6] *= .67;
+				    			cout << pokedexname[ppoke] << " had its evasion lowered!" << endl;
+				    		}
+				    		else {
+				    			estats[6] *= 1.67;
+				    			cout << "Enemy " << pokedexname[epoke] << " raised its evasion!" << endl;
+				    		}
+				    	}
+				    	
+				    	if (movestats[emove][13] == 1) { // poison
+				    		status = 1;
+				    		cout << pokedexname[ppoke] << " was poisoned!" << endl;
+				    	}
+				    	else if (movestats[emove][14] == 1) { // burn
+				    		status = 2;
+				    		cout << pokedexname[ppoke] << " was burned!" << endl;
+				    	}
+				    	else if (movestats[emove][15] == 1) { //paralyze
+				    		status = 3;
+				    		cout << pokedexname[ppoke] << " was paralyzed!" << endl;
+				    	}
+				  		else if (movestats[emove][16] == 1) { // freeze
+				  			status = 4;
+				    		cout << pokedexname[ppoke] << " was frozen solid!" << endl;
+				  		}
+				  		else if (movestats[emove][17] == 1) { //sleep
+				  			status = 5;
+				    		cout << pokedexname[ppoke] << " was put to sleep!" << endl;
+				  		}
+				  		else {
+				  			;
+				  		}
+				    }
+			  		else {
+			  			if (movestats[emove][1] == 0) cout << "But it failed!" << endl;
+			  		}
+				}      
+		
+		
+		      cout << endl;
+		
+		      stab = 1;
+		      crit = 1;
+		
+		      if (pHP - damage <= 0) {
+		        pHP = 0;
+		        return;
+		      } else
+		        pHP -= damage;
+		    } else
+		      cout << " But it missed!" << endl;
+		  }
+    	else {
+			if (estatus == 4) cout << "Enemy " << pokedexname[epoke] << " is frozen and can't move!" << endl;
+			else cout << "Enemy " << pokedexname[epoke] << " is fast asleep!" << endl;
+		}
+	}
+	else cout << "Enemy " << pokedexname[epoke] << " is paralyzed and can't move!" << endl;
+	
+	
     // player turn
+    damage = 0;
     if (pmove != 0) {
-      cout << pokedexname[ppoke] << " used " << movelist[pmove] << "!";
-      if ((rand() % 100) <= movestats[pmove][2]) {
-        if (movestats[pmove][0] == 1 || movestats[pmove][0] == 2 ||
-            movestats[pmove][0] == 3 || movestats[pmove][0] == 4 ||
-            movestats[pmove][0] == 5 || movestats[pmove][0] == 10) {
-          attack = stat("SA", ppoke, plvl);
-          defense = stat("SD", epoke, elvl);
-        } else {
-          attack = stat("A", ppoke, plvl);
-          defense = stat("D", epoke, elvl);
-        }
-
-        if (rand() % 16 == 1) {
-          crit = 2;
-          cout << " Critical hit!";
-        }
-
-        if (movestats[pmove][0] == pokestat[ppoke][8] ||
-            movestats[pmove][0] == pokestat[ppoke][9])
-          stab = 1.5;
-
-        if (effective(pmove, epoke) > 1)
-          cout << " Super effective!";
-        else if (effective(pmove, epoke) < 1)
-          cout << " It's not very effective. . .";
-        else if (effective(pmove, epoke) == 0)
-          cout << "It had no effect!";
-        else
-          ;
-
-        switch (pmove) {
-          case 99:  // psywave
-            damage = plvl * ((rand() % 6) / 10.0 + 1);
-            break;
-          case 139:  // super fang
-            damage = eHP / 2;
-            break;
-          case 35:  // dragon rage
-            damage = 40;
-            break;
-          case 88:   // night shade
-          case 114:  // seismic toss
-            if (effective(pmove, epoke) == 0) {
-              damage = 0;
-            } else {
-              damage = plvl;
-            }
-            break;
-          case 128:  // sonic boom
-            if (effective(pmove, epoke) == 0) {
-              damage = 0;
-            } else {
-              damage = 20;
-            }
-            break;
-          default:
-            modifier = stab * effective(pmove, epoke) *
-                       (1 - rand() % 15 / 100.0) * crit;
-            damage = (((2.0 * plvl + 10) / 250) * (attack / defense) *
-                          (movestats[pmove][1]) +
-                      2) *
-                     modifier;
-            break;
-        }
-
-        cout << endl;
-        stab = 1;
-        crit = 1;
-
-        if (eHP - damage <= 0) {
-          eHP = 0;
-          return;
-        } else
-          eHP -= damage;
-      } else
-        cout << " But it missed!" << endl;
-    }
+    	if (status != 3 || (status == 3 && rand()%100 <= 50)){
+    		if (pfrz == 1) {
+    			if (rand() % 100 <= 40) { 
+    				if (status == 3) cout << pokedexname[ppoke] << " thawed itself!" << endl;
+    				else cout << pokedexname[ppoke] << " woke up!" << endl;
+    				pfrz = 0;
+    				status = 0;
+    			}
+    		}
+    		if (pfrz != 1) {
+		      cout << pokedexname[ppoke] << " used " << movelist[pmove] << "! ";
+		      if ((rand() % 100) <= movestats[pmove][2] * (pstats[5]/estats[6]) || movestats[pmove][2] == 0) { 
+			      	if (movestats[pmove][1] != 0) { 
+				        // player first
+				        if (movestats[pmove][0] == 1 || movestats[pmove][0] == 2 ||
+				            movestats[pmove][0] == 3 || movestats[pmove][0] == 4 ||
+				            movestats[pmove][0] == 5 || movestats[pmove][0] == 10) {
+				          attack = stat("SA", ppoke, plvl) * pstats[2];
+				          defense = stat("SD", epoke, elvl) * estats[3];
+				        } else {
+				          attack = stat("A", ppoke, plvl) * pstats[0];
+				          defense = stat("D", epoke, elvl) * estats[1]	;
+				        }
+				        
+				        if (status == 2) attack /= 2;
+				
+				        if (rand() % 16 == 1) {
+				          crit = 2;
+				          cout << " Critical hit! ";
+				        }
+				
+				        if (movestats[pmove][0] == pokestat[ppoke][8] ||
+				            movestats[pmove][0] == pokestat[ppoke][9])
+				          stab = 1.5;
+				
+				        if (effective(pmove, epoke) > 1)
+				          cout << " Super effective! ";
+				        else if (effective(pmove, epoke) < 1)
+				          cout << " It's not very effective. . . ";
+				        else if (effective(pmove, epoke) == 0)
+				          cout << "It had no effect! ";
+				        else
+				          ;
+				
+				        switch (pmove) {
+				          case 99:  // psywave
+				            damage = plvl * ((rand() % 6) / 10.0 + 1);
+				            break;
+				          case 139:  // super fang
+				            damage = eHP / 2;
+				            break;
+				          case 35:  // dragon rage
+				            damage = 40;
+				            break;
+				          case 88:   // night shade
+				          case 114:  // seismic toss
+				            if (effective(pmove, epoke) == 0) {
+				              damage = 0;
+				            } else {
+				              damage = plvl;
+				            }
+				            break;
+				          case 128:  // sonic boom
+				            if (effective(pmove, epoke) == 0) {
+				              damage = 0;
+				            } else {
+				              damage = 20;
+				            }
+				            break;
+				          default:
+				            modifier = stab * effective(pmove, epoke) *
+				                       (1 - rand() % 15 / 100.0) * crit;
+				            damage = (((2.0 * plvl + 10) / 250) * (attack / defense) *
+				                          (movestats[pmove][1]) +
+				                      2) *
+				                     modifier;
+				            break;
+				        }
+			    }
+		
+			    if (movestats[pmove][3] != 0) { 
+			    	if ((rand() % 100) <= movestats[pmove][3]) { 
+				    	if (movestats[pmove][5] == 1) { // heal
+				    		pHP += .5*damage;
+				    		cout << pokedexname[ppoke] << " regained health!" << endl;
+				    	}
+				    	if (movestats[pmove][6] == 1) { // attack modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[0] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its attack lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[0] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][7] == 1) { // def modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[1] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its defense lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[1] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][8] == 1) { // sp attack modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[2] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its special attack lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[2] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its special attack!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][9] == 1) { // sp def modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[3] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its special defense lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[3] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its special defense!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][10] == 1) { // speed modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[4] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its speed lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[4] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its speed!" << endl;
+				    		}
+				    	}
+				    	if (movestats[pmove][11] == 1) { // acc modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[5] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its accuracy lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[5] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its accuracy!" << endl;;
+				    		}
+				    	}
+					    if (movestats[pmove][12] == 1) { // eva modifier
+				    		if (movestats[pmove][4] == 1) {
+				    			estats[6] *= .67;
+				    			cout << "Enemy " << pokedexname[epoke] << " had its evasion lowered!" << endl;
+				    		}
+				    		else {
+				    			pstats[6] *= 1.67;
+				    			cout << pokedexname[ppoke] << " raised its evasion!" << endl;
+				    		}
+				    	}
+				    	
+				    	if (movestats[pmove][13] == 1) { // poison
+				    		estatus = 1;
+				    		cout << "Enemy " << pokedexname[epoke] << " was poisoned!" << endl;
+				    	}
+				    	else if (movestats[pmove][14] == 1) { // burn
+				    		estatus = 2;
+				    		cout << "Enemy " << pokedexname[epoke] << " was burned!" << endl;
+				    	}
+				    	else if (movestats[pmove][15] == 1) { //paralyze
+				    		estatus = 3;
+				    		cout << "Enemy " << pokedexname[epoke] << " was paralyzed!" << endl;
+				    	}
+				  		else if (movestats[pmove][16] == 1) { // freeze
+				  			estatus = 4;
+				    		cout << "Enemy " << pokedexname[epoke] << " was frozen solid!" << endl;
+				  		}
+				  		else if (movestats[pmove][17] == 1) { //sleep
+				  			estatus = 5;
+				    		cout << "Enemy " << pokedexname[epoke] << " was put to sleep!" << endl;
+				  		}
+				  		else {
+				  			;
+				  		}
+				    }
+			  		else {
+			  			if (movestats[pmove][1] == 0) cout << "But it failed!" << endl;
+			  		}
+				}   	    		
+		
+		        cout << endl;
+		
+		        stab = 1;
+		        crit = 1;
+		
+		        if (eHP - damage <= 0) {
+		          eHP = 0;
+		          return;
+		        } else
+		          eHP -= damage;
+		      } else
+		        cout << " But it missed!" << endl;
+	    	}
+	    	else {
+				if (status == 4) cout << pokedexname[ppoke] << " is frozen and can't move!" << endl;
+				else cout << pokedexname[ppoke] << " is fast asleep!" << endl;
+			}
+	    		
+	    }
+	    else cout << pokedexname[ppoke] << " is paralyzed and can't move!" << endl;
+	}
   }
+  
+  if (eHP > 0 && (estatus == 2 || estatus == 1)) {
+  	eHP -= (1.0/16)*stat("HP", epoke, elvl);
+  	if (estatus == 1) {
+  		cout << "Enemy " << pokedexname[epoke] << " was hurt by poison!" << endl;
+  	}
+  	else {
+  		cout << "Enemy " << pokedexname[epoke] << " was hurt by its burn!" << endl;
+  	}
+  	if (eHP <= 0) eHP = 0;
+  }
+  	
+ if (pHP > 0 && (status == 2 || status == 1)) {
+  	pHP -= (1.0/16)*stat("HP", ppoke, plvl);
+  	if (status == 1) {
+  		cout << pokedexname[ppoke] << " was hurt by poison!" << endl;
+  	}
+  	else {
+  		cout << pokedexname[ppoke] << " was hurt by its burn!" << endl;
+  	}
+  	if (pHP <= 0) pHP = 0;
+  }
+  
+  
 }
 
 double effective(int move, int pokemon)  // evaluates move effectiveness
 {
   return typechart[movestats[move][0]][pokestat[pokemon][7]] *
          typechart[movestats[move][0]][pokestat[pokemon][8]];
+}
+
+void pokeheal()
+{
+	for (int i = 0; i < 6; i++) {
+		party[i][2] = stat("HP", party[i][0], party[i][1]);
+		party[i][8] = 0;
+		
+	}
+	cout << "Nurse Joy: All pokemon fully restored! We hope to see "
+	    "you again!"
+	 << endl;
+	x = lastx;
+	y = lasty;
+	
 }
 
 int moveselect(int enemypokemon, int enemylvl, int pPokemon)  // enemy AI
@@ -2550,14 +3095,14 @@ int moves(int pokemon, int& level)  // loads moves on lvlup
   }
 
   if (level >= 0)
-    moveID = moveset[pokemon][level--] - 1;
+    moveID = moveset[pokemon][level--];
   else
     moveID = 0;
 
   return moveID;
 }
 
-void pokeget(int pokemon, int level, int hp)  // puts poke in box or bag
+void pokeget(int pokemon, int level, int hp, int status)  // puts poke in box or bag
 {
   int i = 0;
 
@@ -2583,6 +3128,7 @@ void pokeget(int pokemon, int level, int hp)  // puts poke in box or bag
     box[i][5] = moves(pokemon, level);
     box[i][6] = moves(pokemon, level);
     box[i][7] = moves(pokemon, level);
+    box[i][8] = 0;
 
   }
 
@@ -2595,6 +3141,7 @@ void pokeget(int pokemon, int level, int hp)  // puts poke in box or bag
     party[i][5] = moves(pokemon, level);
     party[i][6] = moves(pokemon, level);
     party[i][7] = moves(pokemon, level);
+    party[i][8] = status;
   }
 }
 
@@ -2649,12 +3196,12 @@ void loadfile()  // loads global vars
   maploader.close();
 
   boxF.open("box.txt");
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 9; i++)
     for (j = 0; j < 30; j++) boxF >> box[j][i];
   boxF.close();
 
   partyF.open("party.txt");
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 9; i++)
     for (j = 0; j < 6; j++) partyF >> party[j][i];
   partyF.close();
 
@@ -2666,9 +3213,9 @@ void loadfile()  // loads global vars
   int temp;
   movesetloader.open("moveset.txt");
   for (j = 0; j < 151; j++)
-    for (i = 0; i < 92; i++) {
+    for (i = 0; i < 93; i++) {
       movesetloader >> temp;
-      moveset[j][i] = temp + 1;
+      moveset[j][i] = temp;
     }
 
   movesetloader.close();
@@ -2679,7 +3226,7 @@ void loadfile()  // loads global vars
 
   movelistloader.open("movestats.txt");
   for (i = 0; i < 166; i++)
-    for (j = 0; j < 3; j++) movelistloader >> movestats[i + 1][j];
+    for (j = 0; j < 18; j++) movelistloader >> movestats[i + 1][j];
   movelistloader.close();
 
   chartloader.open("typechart.txt");
@@ -2731,7 +3278,7 @@ void savefile()  // saves save file, box, and party
   flagS.close();
 
   // saves box pokemon to box.txt
-  for (j = 0; j < 8;
+  for (j = 0; j < 9;
        j++)  // row dex#, level, exp, hp, move1, move2, move3, move4
   {
     for (i = 0; i < 30; i++)  // column pokemon
@@ -2740,7 +3287,7 @@ void savefile()  // saves save file, box, and party
   }
 
   // saves party pokemon to praty.txt
-  for (j = 0; j < 8;
+  for (j = 0; j < 9;
        j++)  // row dex#, level, exp, hp, move1, move2, move3, move4
   {
     for (i = 0; i < 6; i++)  // column pokemon
@@ -2806,15 +3353,15 @@ void gamestart()  // pokeselect and first battle
     switch (starter) {
       case 1:
         cout << "You got Bulbasaur!" << endl;
-        pokeget(1, 5, stat("HP", 1, 5));
+        pokeget(1, 5, stat("HP", 1, 5), 0);
         break;
       case 2:
         cout << "You got Charmander!" << endl;
-        pokeget(4, 5, stat("HP", 4, 5));
+        pokeget(4, 5, stat("HP", 4, 5), 0);
         break;
       case 3:
         cout << "You got Squirtle!" << endl;
-        pokeget(7, 5, stat("HP", 7, 5));
+        pokeget(7, 5, stat("HP", 7, 5), 0);
         break;
       default:
         continue;
